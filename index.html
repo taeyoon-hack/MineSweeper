@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101820" />
+    <title>지뢰찾기 | Minefield</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="game-header">
+        <p class="eyebrow">CLASSIC PUZZLE</p>
+        <h1><span aria-hidden="true">💣</span> 지뢰찾기</h1>
+        <p class="subtitle">지뢰를 피해 모든 안전한 칸을 열어보세요.</p>
+      </header>
+
+      <section class="game-panel" aria-label="지뢰찾기 게임">
+        <div class="game-toolbar">
+          <div class="counter-card" aria-label="남은 지뢰 수">
+            <span class="counter-icon" aria-hidden="true">🚩</span>
+            <div>
+              <span class="counter-label">MINES LEFT</span>
+              <output class="counter-value" id="mine-count" aria-live="polite">10</output>
+            </div>
+          </div>
+
+          <button class="reset-button" id="reset-button" type="button" aria-label="새 게임 시작">
+            <span aria-hidden="true">🙂</span>
+          </button>
+
+          <div class="counter-card timer-card" aria-label="경과 시간">
+            <span class="counter-icon" aria-hidden="true">⏱</span>
+            <div>
+              <span class="counter-label">TIME</span>
+              <output class="counter-value" id="timer" aria-live="off">00:00</output>
+            </div>
+          </div>
+        </div>
+
+        <p class="game-status" id="game-status" role="status" aria-live="polite">
+          칸을 열어 게임을 시작하세요.
+        </p>
+
+        <div
+          class="board"
+          id="board"
+          role="grid"
+          aria-label="9행 9열 지뢰찾기 보드"
+          aria-describedby="game-help"
+        ></div>
+
+        <p class="game-help" id="game-help">
+          칸을 눌러 열고, 마우스 오른쪽 버튼으로 깃발을 표시하세요.
+        </p>
+      </section>
+
+      <footer class="game-footer">9 × 9 <span aria-hidden="true">·</span> 10 MINES</footer>
+    </main>
+  </body>
+</html>
