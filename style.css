@@ -181,7 +181,6 @@ button {
 .segment-c { right: 0; bottom: 2px; }
 .segment-e { bottom: 2px; left: 0; }
 .segment-f { top: 2px; left: 0; }
-}
 
 .restart-button {
   width: 40px;
@@ -194,8 +193,35 @@ button {
   border-left: 3px solid #fff;
   border-right: 3px solid #404040;
   border-bottom: 3px solid #404040;
-  font-size: 22px;
   cursor: pointer;
+}
+
+.face-icon {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+}
+
+.face-outline {
+  fill: #000;
+}
+
+.face-fill {
+  fill: #ffcc00;
+}
+
+.face-detail {
+  display: none;
+  fill: #111;
+}
+
+.face-idle .face-idle-detail,
+.face-playing .face-playing-detail,
+.face-pressed .face-pressed-detail,
+.face-won .face-won-detail,
+.face-lost .face-lost-detail {
+  display: inline;
 }
 
 .restart-button:active {

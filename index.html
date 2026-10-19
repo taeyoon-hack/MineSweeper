@@ -27,7 +27,40 @@
           <span class="counter-label">MINES</span>
           <output id="mine-counter" class="seven-segment" aria-live="polite" aria-label="남은 지뢰 10개">010</output>
         </div>
-        <button id="restart-button" class="restart-button" type="button" aria-label="현재 난이도로 다시 시작">🙂</button>
+        <button id="restart-button" class="restart-button" type="button" aria-label="다시 시작: 대기 중">
+          <svg id="face-icon" class="face-icon face-idle" viewBox="0 0 16 16" role="img" aria-label="대기 중">
+            <rect class="face-outline" x="1" y="1" width="14" height="14"/>
+            <rect class="face-fill" x="2" y="2" width="12" height="12"/>
+            <g class="face-detail face-idle-detail">
+              <rect x="4" y="5" width="2" height="2"/>
+              <rect x="10" y="5" width="2" height="2"/>
+              <rect x="4" y="9" width="2" height="2"/>
+              <rect x="6" y="11" width="4" height="2"/>
+              <rect x="10" y="9" width="2" height="2"/>
+            </g>
+            <g class="face-detail face-playing-detail">
+              <rect x="4" y="5" width="2" height="2"/>
+              <rect x="10" y="5" width="2" height="2"/>
+              <rect x="5" y="10" width="6" height="2"/>
+            </g>
+            <g class="face-detail face-pressed-detail">
+              <rect x="4" y="5" width="2" height="2"/>
+              <rect x="10" y="5" width="2" height="2"/>
+              <rect x="6" y="9" width="4" height="4"/>
+            </g>
+            <g class="face-detail face-won-detail">
+              <rect x="3" y="5" width="5" height="2"/>
+              <rect x="9" y="5" width="5" height="2"/>
+              <rect x="5" y="9" width="2" height="2"/>
+              <rect x="7" y="11" width="2" height="2"/>
+              <rect x="9" y="9" width="2" height="2"/>
+            </g>
+            <g class="face-detail face-lost-detail">
+              <path d="M4 5h2v2H4zm2 2h2v2H6zm-2 2h2v2H4zm6-4h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2z"/>
+              <rect x="5" y="11" width="6" height="2"/>
+            </g>
+          </svg>
+        </button>
         <div class="counter" aria-label="경과 시간">
           <span class="counter-label">TIME</span>
           <output id="timer" class="seven-segment" aria-live="off" aria-label="경과 시간 0초">000</output>

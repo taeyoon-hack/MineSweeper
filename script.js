@@ -11,6 +11,7 @@ const boardElement = document.querySelector("#board");
 const mineCounterElement = document.querySelector("#mine-counter");
 const timerElement = document.querySelector("#timer");
 const restartButton = document.querySelector("#restart-button");
+const faceIcon = document.querySelector("#face-icon");
 const messageElement = document.querySelector("#game-message");
 const soundToggle = document.querySelector("#sound-toggle");
 const soundIcon = document.querySelector("#sound-icon");
@@ -75,6 +76,19 @@ function formatRecord(seconds) {
   const minutes = Math.floor(seconds / 60);
   const remainder = seconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+}
+
+function setFace(state) {
+  const labels = {
+    idle: "대기 중",
+    playing: "게임 진행 중",
+    pressed: "칸을 누르는 중",
+    won: "승리",
+    lost: "패배",
+  };
+  faceIcon.setAttribute("class", `face-icon face-${state}`);
+  faceIcon.setAttribute("aria-label", labels[state]);
+  restartButton.setAttribute("aria-label", `다시 시작: ${labels[state]}`);
 }
 
 function renderSevenSegment(element, value, accessibleLabel) {
@@ -167,7 +181,7 @@ function startNewGame() {
 
   renderSevenSegment(timerElement, counterValue(0), "경과 시간 0초");
   renderSevenSegment(mineCounterElement, counterValue(game.mineCount), `남은 지뢰 ${game.mineCount}개`);
-  restartButton.textContent = "🙂";
+  setFace("idle");
   messageElement.textContent = storageErrorMessage || "칸을 열어 게임을 시작하세요.";
   renderRecords();
 }
@@ -224,6 +238,7 @@ function revealCell(index) {
   if (!game.started) {
     placeMines(index);
     game.started = true;
+    setFace("playing");
     startTimer();
   }
 
@@ -341,7 +356,7 @@ function finishGame(outcome) {
   stopTimer();
 
   if (outcome === "won") {
-    restartButton.textContent = "😎";
+    setFace("won");
     messageElement.textContent = `승리! ${game.elapsedSeconds}초 만에 안전한 칸을 모두 열었습니다.`;
     playSound("win");
     if (bestTimes[selectedDifficulty] === undefined || game.elapsedSeconds < bestTimes[selectedDifficulty]) {
@@ -353,7 +368,7 @@ function finishGame(outcome) {
         : ` ${storageErrorMessage}`;
     }
   } else {
-    restartButton.textContent = "😵";
+    setFace("lost");
     messageElement.textContent = "지뢰를 밟았습니다. 다시 도전해 보세요!";
   }
 }
@@ -417,6 +432,22 @@ difficultyButtons.forEach((button) => {
     startNewGame();
   });
 });
+
+boardElement.addEventListener("pointerdown", (event) => {
+  if (event.isPrimary && event.button === 0 && event.target.closest(".cell") && !game.ended) {
+    setFace("pressed");
+  }
+});
+
+function restoreFaceAfterPress() {
+  if (game.ended) return;
+  setFace(game.started ? "playing" : "idle");
+}
+
+boardElement.addEventListener("pointerup", restoreFaceAfterPress);
+boardElement.addEventListener("pointercancel", restoreFaceAfterPress);
+window.addEventListener("pointerup", restoreFaceAfterPress);
+window.addEventListener("pointercancel", restoreFaceAfterPress);
 
 restartButton.addEventListener("click", startNewGame);
 
