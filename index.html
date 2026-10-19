@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#c0c0c0">
+    <title>지뢰찾기 - MineSweeper</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="game-window">
+      <header class="title-bar">
+        <span class="title-icon" aria-hidden="true">▦</span>
+        <h1>지뢰찾기</h1>
+        <span class="title-caption">MINESWEEPER</span>
+      </header>
+
+      <nav class="difficulty-bar" aria-label="난이도 선택">
+        <button class="difficulty-button is-active" type="button" data-difficulty="beginner" aria-pressed="true">초급</button>
+        <button class="difficulty-button" type="button" data-difficulty="intermediate" aria-pressed="false">중급</button>
+        <button class="difficulty-button" type="button" data-difficulty="expert" aria-pressed="false">고급</button>
+      </nav>
+
+      <section class="game-panel" aria-label="게임 정보">
+        <div class="counter" aria-label="남은 지뢰 수">
+          <span class="counter-label">MINES</span>
+          <output id="mine-counter" class="seven-segment" aria-live="polite" aria-label="남은 지뢰 10개">010</output>
+        </div>
+        <button id="restart-button" class="restart-button" type="button" aria-label="현재 난이도로 다시 시작">🙂</button>
+        <div class="counter" aria-label="경과 시간">
+          <span class="counter-label">TIME</span>
+          <output id="timer" class="seven-segment" aria-live="off" aria-label="경과 시간 0초">000</output>
+        </div>
+      </section>
+
+      <p id="game-message" class="game-message" role="status" aria-live="polite">칸을 열어 게임을 시작하세요.</p>
+
+      <section class="board-frame" aria-label="지뢰찾기 게임판">
+        <div id="board" class="board" role="grid" aria-label="지뢰찾기 격자"></div>
+      </section>
+
+      <section class="bottom-panel" aria-label="기록 및 사운드">
+        <div class="records">
+          <h2>최고 기록 <span aria-hidden="true">🏆</span></h2>
+          <dl>
+            <div><dt>초급</dt><dd id="record-beginner">--:--</dd></div>
+            <div><dt>중급</dt><dd id="record-intermediate">--:--</dd></div>
+            <div><dt>고급</dt><dd id="record-expert">--:--</dd></div>
+          </dl>
+        </div>
+        <button id="sound-toggle" class="sound-button" type="button" aria-pressed="true">
+          <span id="sound-icon" aria-hidden="true">🔊</span>
+          <span id="sound-label">사운드 켜짐</span>
+        </button>
+      </section>
+
+      <footer>💣 지뢰를 피해 모든 안전한 칸을 여세요!</footer>
+    </main>
+  </body>
+</html>
