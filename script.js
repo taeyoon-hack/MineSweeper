@@ -1,15 +1,23 @@
 "use strict";
 
-const ROWS = 9;
-const COLUMNS = 9;
-const MINE_COUNT = 10;
+const DIFFICULTIES = {
+  beginner: { label: "초급", rows: 9, columns: 9, mines: 10 },
+  intermediate: { label: "중급", rows: 16, columns: 16, mines: 40 },
+  expert: { label: "고급", rows: 16, columns: 30, mines: 99 },
+};
+const CONFETTI_COLORS = ["#b6e36a", "#ffd166", "#ff8276", "#77c9d4", "#c7a0ff"];
 
 const boardElement = document.querySelector("#board");
 const mineCountElement = document.querySelector("#mine-count");
 const timerElement = document.querySelector("#timer");
 const statusElement = document.querySelector("#game-status");
 const resetButton = document.querySelector("#reset-button");
+const difficultyElement = document.querySelector("#difficulty");
+const bestRecordElement = document.querySelector("#best-record");
+const modeSummaryElement = document.querySelector("#mode-summary");
+const confettiLayerElement = document.querySelector("#confetti-layer");
 
+let difficulty = DIFFICULTIES[difficultyElement.value];
 let cells = [];
 let flagsPlaced = 0;
 let elapsedSeconds = 0;
@@ -24,8 +32,42 @@ function formatTime(totalSeconds) {
 }
 
 function updateCounters() {
-  mineCountElement.textContent = String(MINE_COUNT - flagsPlaced).padStart(2, "0");
+  mineCountElement.textContent = String(difficulty.mines - flagsPlaced).padStart(3, "0");
   timerElement.textContent = formatTime(elapsedSeconds);
+}
+
+function getBestRecord() {
+  const storedRecord = window.localStorage.getItem(`minesweeper-best-${difficultyElement.value}`);
+
+  if (storedRecord === null) {
+    return null;
+  }
+
+  const bestTime = Number(storedRecord);
+  return Number.isSafeInteger(bestTime) && bestTime >= 0 ? bestTime : null;
+}
+
+function updateBestRecord() {
+  try {
+    const bestTime = getBestRecord();
+    bestRecordElement.textContent = `최고 기록 · ${bestTime === null ? "--:--" : formatTime(bestTime)}`;
+  } catch (error) {
+    bestRecordElement.textContent = "최고 기록 · 불러오기 실패";
+    statusElement.textContent = "최고 기록을 불러오지 못했습니다.";
+    console.error("최고 기록을 불러오지 못했습니다.", error);
+  }
+}
+
+function updateModeDisplay() {
+  boardElement.style.setProperty("--columns", difficulty.columns);
+  boardElement.setAttribute(
+    "aria-label",
+    `${difficulty.rows}행 ${difficulty.columns}열 ${difficulty.label} 지뢰찾기 보드`,
+  );
+  modeSummaryElement.innerHTML =
+    `${difficulty.rows} × ${difficulty.columns} <span aria-hidden="true">·</span> ${difficulty.mines} MINES`;
+  updateCounters();
+  updateBestRecord();
 }
 
 function updateCellLabel(cell) {
@@ -51,10 +93,10 @@ function createBoard() {
   boardElement.replaceChildren();
   cells = [];
 
-  for (let row = 0; row < ROWS; row += 1) {
+  for (let row = 0; row < difficulty.rows; row += 1) {
     const rowCells = [];
 
-    for (let column = 0; column < COLUMNS; column += 1) {
+    for (let column = 0; column < difficulty.columns; column += 1) {
       const button = document.createElement("button");
       button.className = "cell";
       button.type = "button";
@@ -71,6 +113,12 @@ function createBoard() {
       };
 
       button.addEventListener("click", () => revealCell(cell));
+      button.addEventListener("mousedown", (event) => {
+        if (event.buttons === 3) {
+          event.preventDefault();
+          chordCell(cell);
+        }
+      });
       button.addEventListener("contextmenu", (event) => {
         event.preventDefault();
         toggleFlag(cell);
@@ -98,9 +146,9 @@ function getNeighbors(row, column) {
 
       if (
         neighborRow >= 0 &&
-        neighborRow < ROWS &&
+        neighborRow < difficulty.rows &&
         neighborColumn >= 0 &&
-        neighborColumn < COLUMNS
+        neighborColumn < difficulty.columns
       ) {
         neighbors.push(cells[neighborRow][neighborColumn]);
       }
@@ -115,7 +163,7 @@ function placeMines(firstCell) {
     (cell) => cell.row !== firstCell.row || cell.column !== firstCell.column,
   );
 
-  for (let index = 0; index < MINE_COUNT; index += 1) {
+  for (let index = 0; index < difficulty.mines; index += 1) {
     const randomIndex = Math.floor(Math.random() * candidates.length);
     const [mineCell] = candidates.splice(randomIndex, 1);
     mineCell.mine = true;
@@ -179,14 +227,50 @@ function revealCell(cell) {
   }
 
   revealSafeCells(cell);
+  checkForWin();
+}
 
+function checkForWin() {
   const revealedSafeCount = cells.flat().filter(
     (currentCell) => currentCell.revealed && !currentCell.mine,
   ).length;
 
-  if (revealedSafeCount === ROWS * COLUMNS - MINE_COUNT) {
+  if (revealedSafeCount === difficulty.rows * difficulty.columns - difficulty.mines) {
     finishGame(true, "축하해요! 모든 안전한 칸을 열었어요.");
   }
+}
+
+function chordCell(cell) {
+  if (gameOver || !cell.revealed || cell.mine || cell.adjacentMines === 0) {
+    return;
+  }
+
+  const neighbors = getNeighbors(cell.row, cell.column);
+  const flaggedNeighbors = neighbors.filter((neighbor) => neighbor.flagged).length;
+
+  if (flaggedNeighbors !== cell.adjacentMines) {
+    return;
+  }
+
+  const hiddenNeighbors = neighbors.filter((neighbor) => !neighbor.revealed && !neighbor.flagged);
+  const hitMine = hiddenNeighbors.find((neighbor) => neighbor.mine);
+
+  for (const neighbor of hiddenNeighbors) {
+    if (neighbor.mine) {
+      neighbor.revealed = true;
+      renderCell(neighbor);
+      neighbor.element.classList.add("is-exploded");
+    } else {
+      revealSafeCells(neighbor);
+    }
+  }
+
+  if (hitMine) {
+    finishGame(false, "지뢰를 밟았어요! 다시 도전해보세요.");
+    return;
+  }
+
+  checkForWin();
 }
 
 function revealSafeCells(startCell) {
@@ -237,6 +321,47 @@ function finishGame(won, message) {
         cell.element.textContent = "✕";
       }
     }
+    return;
+  }
+
+  try {
+    const previousBest = getBestRecord();
+
+    if (previousBest === null || elapsedSeconds < previousBest) {
+      window.localStorage.setItem(`minesweeper-best-${difficultyElement.value}`, String(elapsedSeconds));
+      updateBestRecord();
+      statusElement.textContent = `신기록 달성! ${message}`;
+      showConfetti();
+    }
+  } catch (error) {
+    statusElement.textContent = `${message} (최고 기록을 저장하지 못했습니다.)`;
+    console.error("최고 기록을 저장하지 못했습니다.", error);
+  }
+}
+
+function showConfetti() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  confettiLayerElement.replaceChildren();
+
+  for (let index = 0; index < 80; index += 1) {
+    const piece = document.createElement("span");
+    const size = 5 + Math.random() * 7;
+    const delay = Math.random() * 0.8;
+    const duration = 2.4 + Math.random() * 1.8;
+
+    piece.className = "confetti-piece";
+    piece.style.setProperty("--start-x", `${Math.random() * 100}%`);
+    piece.style.setProperty("--piece-size", `${size}px`);
+    piece.style.setProperty("--piece-color", CONFETTI_COLORS[index % CONFETTI_COLORS.length]);
+    piece.style.setProperty("--fall-delay", `${delay}s`);
+    piece.style.setProperty("--fall-duration", `${duration}s`);
+    piece.style.setProperty("--drift", `${Math.random() * 180 - 90}px`);
+    piece.style.setProperty("--spin", `${Math.random() * 1080 - 540}deg`);
+    piece.addEventListener("animationend", () => piece.remove(), { once: true });
+    confettiLayerElement.append(piece);
   }
 }
 
@@ -255,6 +380,11 @@ function resetGame() {
 }
 
 resetButton.addEventListener("click", resetGame);
+difficultyElement.addEventListener("change", () => {
+  difficulty = DIFFICULTIES[difficultyElement.value];
+  resetGame();
+  updateModeDisplay();
+});
 
-updateCounters();
+updateModeDisplay();
 createBoard();

@@ -17,6 +17,15 @@
       </header>
 
       <section class="game-panel" aria-label="지뢰찾기 게임">
+        <div class="difficulty-picker">
+          <label for="difficulty">난이도</label>
+          <select id="difficulty">
+            <option value="beginner">초급 · 9 × 9</option>
+            <option value="intermediate">중급 · 16 × 16</option>
+            <option value="expert">고급 · 30 × 16</option>
+          </select>
+        </div>
+
         <div class="game-toolbar">
           <div class="counter-card" aria-label="남은 지뢰 수">
             <span class="counter-icon" aria-hidden="true">🚩</span>
@@ -42,21 +51,25 @@
         <p class="game-status" id="game-status" role="status" aria-live="polite">
           칸을 열어 게임을 시작하세요.
         </p>
+        <p class="best-record" id="best-record" aria-live="polite">최고 기록 · --:--</p>
 
-        <div
-          class="board"
-          id="board"
-          role="grid"
-          aria-label="9행 9열 지뢰찾기 보드"
-          aria-describedby="game-help"
-        ></div>
+        <div class="board-viewport">
+          <div
+            class="board"
+            id="board"
+            role="grid"
+            aria-label="9행 9열 지뢰찾기 보드"
+            aria-describedby="game-help"
+          ></div>
+        </div>
 
         <p class="game-help" id="game-help">
-          칸을 눌러 열고, 마우스 오른쪽 버튼으로 깃발을 표시하세요.
+          칸을 눌러 열고 오른쪽 버튼으로 깃발을 표시하세요. 숫자 칸에서 좌·우 버튼을 함께 누르면 주변 칸을 엽니다.
         </p>
       </section>
 
-      <footer class="game-footer">9 × 9 <span aria-hidden="true">·</span> 10 MINES</footer>
+      <footer class="game-footer" id="mode-summary">9 × 9 <span aria-hidden="true">·</span> 10 MINES</footer>
     </main>
+    <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
   </body>
 </html>
